@@ -6,20 +6,20 @@ DocMeta.setdocmeta!(PhysicsTools, :DocTestSetup, :(using PhysicsTools); recursiv
 makedocs(;
     modules=[PhysicsTools],
     authors="Christian Haack",
-    repo="https://github.com/chrhck/PhysicsTools.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/PLEnuM-group/PhysicsTools.jl/blob/{commit}{path}#{line}",
     sitename="PhysicsTools.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://chrhck.github.io/PhysicsTools.jl",
+        canonical="https://PLEnuM-group.github.io/PhysicsTools.jl",
         edit_link="main",
-        assets=String[],
+        assets=String[]
     ),
     pages=[
         "Home" => "index.md",
-    ],
+    ]
 )
 
 deploydocs(;
-    repo="github.com/chrhck/PhysicsTools.jl",
-    devbranch="main",
+    repo="github.com/PLEnuM-group/PhysicsTools.jl",
+    devbranch="main"
 )

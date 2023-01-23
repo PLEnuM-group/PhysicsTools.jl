@@ -4,7 +4,7 @@ CurrentModule = PhysicsTools
 
 # PhysicsTools
 
-Documentation for [PhysicsTools](https://github.com/chrhck/PhysicsTools.jl).
+Documentation for [PhysicsTools](https://github.com/PLEnuM-group/PhysicsTools.jl).
 
 ```@index
 ```
