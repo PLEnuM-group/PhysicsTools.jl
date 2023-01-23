@@ -37,7 +37,7 @@ end
 
 """
     split_by(x::AbstractVector, n::AbstractVector)
-Split vector x into parts, where the split indices are given by vector n
+Split vector x into parts, where the split indices are given by vector n.
 
 """
 function split_by(x::AbstractVector, n::AbstractVector)
@@ -51,6 +51,10 @@ function split_by(x::AbstractVector, n::AbstractVector)
     return result
 end
 
+"""
+    split_by!(x::AbstractVector, n::AbstractVector, out)
+Write output into out
+"""
 function split_by!(x::AbstractVector, n::AbstractVector, out)
     start = firstindex(x)
     for (i, l) in enumerate(n)
