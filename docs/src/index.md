@@ -10,5 +10,5 @@ Documentation for [PhysicsTools](https://github.com/PLEnuM-group/PhysicsTools.jl
 ```
 
 ```@autodocs
-Modules = [PhysicsTools]
+Modules = [PhysicsTools, PhysicsTools.Types, PhysicsTools.Utils]
 ```
