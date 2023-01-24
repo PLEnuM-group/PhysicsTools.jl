@@ -75,6 +75,15 @@ using Distributions
                 @test all(cart_to_sph(sph_to_cart(theta, phi)) .≈ (theta, phi))
             end
 
+            let theta = 0, phi = 1
+                @test all(cart_to_sph(sph_to_cart(theta, phi)) .≈ (0, 0))
+            end
+
+            let theta = π, phi = 1
+                @test all(cart_to_sph(sph_to_cart(theta, phi)) .≈ (π, 0))
+            end
+
+
             let theta = 0.3, phi = π / 2
                 @test all(cart_to_sph(sph_to_cart(theta, phi)) .≈ (theta, phi))
             end
