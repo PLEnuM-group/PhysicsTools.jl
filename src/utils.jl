@@ -65,11 +65,11 @@ end
 
 
 """
-    fast_linear_interp(x_eval::T, xs::AbstractVector{T}, ys::AbstractVector{T})
+    fast_linear_interp(x_eval::Number, xs::AbstractVector, ys::AbstractVector)
 
 Linearly interpolate xs -> ys and evaluate x_eval on interpolation. Assume xs are sorted in ascending order.
 """
-function fast_linear_interp(x_eval::T, xs::AbstractVector{T}, ys::AbstractVector{T}) where {T}
+function fast_linear_interp(x_eval::Number, xs::AbstractVector, ys::AbstractVector)
 
     lower = first(xs)
     upper = last(xs)
@@ -100,16 +100,20 @@ function fast_linear_interp(x_eval::T, xs::AbstractVector{T}, ys::AbstractVector
 
 end
 
+"""
+    fast_linear_interp(x_eval::Number, knots::AbstractVector, lower::Number, upper::Number)
 
-function fast_linear_interp(x::T, knots::AbstractVector{T}, lower::T, upper::T) where {T}
-    # assume equidistant
+Linearly interpolate knots and evaluate x_eval on interpolation.
+Assume knots are equidistant in (lower, upper).
+"""
+function fast_linear_interp(x_eval::Number, knots::AbstractVector, lower::Number, upper::Number)
 
-    x = clamp(x, lower, upper)
+    x_eval = clamp(x_eval, lower, upper)
     range = upper - lower
     n_knots = size(knots, 1)
     step_size = range / (n_knots - 1)
 
-    along_range = (x - lower) / step_size
+    along_range = (x_eval - lower) / step_size
     along_range_floor = floor(along_range)
     lower_knot = Int64(along_range_floor) + 1
 
@@ -150,7 +154,14 @@ function integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, 
     dot(weights, map(x -> transform_integral_range(x, f, (a, b)), nodes))
 end
 
+"""
+    sph_to_cart(theta::Real, phi::Real)
+Convert spherical to cartesian coordinates.
+
+Uses ISO convention (inclination, azimuth).
+"""
 function sph_to_cart(theta::Real, phi::Real)
+
     sin_theta, cos_theta = sincos(theta)
     sin_phi, cos_phi = sincos(phi)
 
@@ -163,6 +174,12 @@ function sph_to_cart(theta::Real, phi::Real)
 end
 
 
+"""
+    cart_to_sph(x::Real, y::Real, z::Real)
+
+Convert cartesian to spherical coordinates. Assumes x, y, z represent a unit vector.
+Uses ISO convetion (inclination, azimuth).
+"""
 function cart_to_sph(x::Real, y::Real, z::Real)
 
     T = promote_type(typeof(x), typeof(y), typeof(z))
@@ -171,20 +188,14 @@ function cart_to_sph(x::Real, y::Real, z::Real)
     elseif z == -1
         return T(π), zero(T)
     end
+
     theta = acos(z)
-    if (x == 0) && (y > 0)
-        phi = T(π / 2)
-    elseif (x == 0) && (y < 0)
-        phi = T(-π / 2)
-    else
-        phi = atan(y, x)
-    end
+    phi = sign(y) * acos(x / sqrt(x^2 + y^2))
 
-    if phi < 0
-        phi = 2 * π + phi
-    end
+    phi = phi < 0 ? phi + 2 * π : phi
+    phi = phi > 2 * π ? phi - 2 * π : phi
 
-    return theta, phi
+    return T(theta), T(phi)
 end
 
 cart_to_sph(x::SVector{3,<:Real}) = cart_to_sph(x[1], x[2], x[3])
