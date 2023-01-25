@@ -130,27 +130,43 @@ function fast_linear_interp(x_eval::Number, knots::AbstractVector, lower::Number
     return interpolated
 end
 
+"""
+    transform_integral_range(x::Real, f::T, xrange::Tuple{<:Real,<:Real}) where {T<:Function}
 
+Apply change of interval formula for evaluating quadrature rule on `f` in interval `xrange`.
+See: https://en.wikipedia.org/wiki/Gaussian_quadrature#Change_of_interval
+"""
 function transform_integral_range(x::Real, f::T, xrange::Tuple{<:Real,<:Real}) where {T<:Function}
     ba_half = (xrange[2] - xrange[1]) / 2
     x = oftype(ba_half, x)
 
     u_traf = ba_half * x + (xrange[1] + xrange[2]) / 2
-    oftype(x, f(u_traf) * ba_half)
-
+    return oftype(x, f(u_traf) * ba_half)
 end
 
+"""
+    integrate_gauss_quad(f::T, a::Real, b::Real) where {T<:Function}
+Integrate `f` in interval [`a`, `b`] using 10-point Gauss-Legendre quadrature.
+"""
 function integrate_gauss_quad(f::T, a::Real, b::Real) where {T<:Function}
     U = promote_type(typeof(a), typeof(b))
-    U(integrate_gauss_quad(f, a, b, GL10[1], GL10[2]))
+    return U(integrate_gauss_quad(f, a, b, GL10[1], GL10[2]))
 end
 
+"""
+    integrate_gauss_quad(f::T, a::Real, b::Real, order::Integer) where {T<:Function}
+Integrate `f` in interval [`a`, `b`] using Gauss-Legendre quadrature of order `order`.
+"""
 function integrate_gauss_quad(f::T, a::Real, b::Real, order::Integer) where {T<:Function}
     nodes, weights = gausslegendre(order)
     integrate_gauss_quad(f, a, b, nodes, weights)
 end
 
-function integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}
+"""
+    integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}
+Integrate `f` in interval [`a`, `b`] using Gaussian quadrature with `nodes` and `weights`.
+"""
+function integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}    
     dot(weights, map(x -> transform_integral_range(x, f, (a, b)), nodes))
 end
 
@@ -235,7 +251,10 @@ Base.rand(pdist::CategoricalSetDistribution) = pdist.set[rand(pdist.cat)]
 
 ssc(v::AbstractVector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
 
-
+"""
+    calc_rot_matrix(a, b)
+Calculates rotation matrix obtained by rotating `a` to `b`.
+"""
 function calc_rot_matrix(a, b)
     # Rotate a to b and apply to operand
     I3 = SMatrix{3,3}(I)
@@ -247,14 +266,13 @@ function calc_rot_matrix(a, b)
     ssc_cross_ab = ssc(cross_ab)
 
     R = SMatrix{3,3}(I) + ssc_cross_ab + ssc_cross_ab^2 * (1 - dot(a, b)) / norm(cross_ab)^2
+    return R
 end
 
 
 """
     apply_rot(a, b, operand)
-
-Calculates rotation matrix obtained by rotating a to b. Apply to operand.
-Apply the resulting rotation to operand.
+Calculates rotation matrix obtained by rotating `a` to `b`. Applies resulting matrix to `operand``.
 """
 function apply_rot(a, b, operand)
     R = calc_rot_matrix(a, b)
@@ -263,22 +281,17 @@ function apply_rot(a, b, operand)
 end
 
 
+"""
+    rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+
+Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `operand`.
+"""
 @inline function rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
 
     if abs(a[3]) == T(1)
         return @SVector[operand[1], copysign(operand[2], a[3]), copysign(operand[3], a[3])]
     end
 
-    #=
-    cross_ab = [a[2] -a[1] 0]
-    norm_cross_ab_sq = a[2]^2 + a[1]^2
-    ssc_ab = [0 0 -a[1]; 0 0 -a[2]; a[1] a[2] 0 ]
-    ssc_ab_sq = [-a[1]^2 -a[1]*a[2] 0; -a[1]*a[2] -a[2]^2 0; 0 0 -a[1]^2 -a[2]^2]
-
-    R = [1-a1sq*fact  -a[1]*a[2]*fact -a[1] ;
-        -a[1]*a[2]*fact 1-fact*a2sq   -a[2] ;
-         a[1]           a[2]             a[3]]
-    =#
     a1sq = a[1]^2
     a2sq = a[2]^2
     fact = (1 - a[3]) / (a2sq + a1sq)
@@ -290,7 +303,11 @@ end
     return SA[x, y, z]
 end
 
+"""
+    rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
 
+Calc rotation matrix which rotates e_z to `a`. Applies resulting matrix to `operand`.
+"""
 @inline function rot_from_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
 
     if abs(a[3]) == T(1)
@@ -311,9 +328,14 @@ end
 
 
 """
+    sample_cherenkov_track_direction(T::Type)
+
+Sample direction of a Cherenkov track in a particle cascade.
+
+Integrated over an entire particle cascade, this approximates the emission direction of Cherenkov photons.
+Taken from: https://arxiv.org/abs/1301.5361, p29
 """
 function sample_cherenkov_track_direction(T::Type)
-    # Mystery values from clsim
     angularDist_a = T(0.39)
     angularDist_b = T(2.61)
     angularDist_I = T(1) - exp(-angularDist_b * 2^angularDist_a)
@@ -333,7 +355,7 @@ Sample gamma variates when shape > 1
 function rand_gamma(shape::Real, scale::Real, T::Type{U}=Float64) where {U<:Real}
 
     d = T(shape - 1 / 3)
-    c = one(T) / sqrt(9 * d)
+    c::T = one(T) / sqrt(9 * d)
 
 
     while true
