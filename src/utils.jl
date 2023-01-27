@@ -71,6 +71,10 @@ Linearly interpolate xs -> ys and evaluate x_eval on interpolation. Assume xs ar
 """
 function fast_linear_interp(x_eval::Number, xs::AbstractVector, ys::AbstractVector)
 
+    if length(xs) != length(ys)
+        error("Input vectors must have the same length")
+    end
+
     lower = first(xs)
     upper = last(xs)
     x_eval = clamp(x_eval, lower, upper)
@@ -118,7 +122,7 @@ function fast_linear_interp(x_eval::Number, knots::AbstractVector, lower::Number
     lower_knot = Int64(along_range_floor) + 1
 
     if lower_knot == n_knots
-        return @inbounds knots[end]
+        return @inbounds oftype(along_range, knots[end])
     end
 
     along_step = along_range - along_range_floor

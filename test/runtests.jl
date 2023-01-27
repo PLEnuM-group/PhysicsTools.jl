@@ -7,6 +7,68 @@ using Distributions
 @testset "PhysicsTools.jl" begin
     @testset "Utils" begin
 
+        @testset "fast_linear_interp" begin
+            # test edge cases
+            let knots = [1, 2, 3], lower = 1, upper = 3
+                x_eval = 1
+                @test fast_linear_interp(x_eval, knots, lower, upper) == knots[1]
+                x_eval = 3
+                @test fast_linear_interp(x_eval, knots, lower, upper) == knots[3]
+                x_eval = 0
+                @test fast_linear_interp(x_eval, knots, lower, upper) == knots[1]
+                x_eval = 4
+                @test fast_linear_interp(x_eval, knots, lower, upper) == knots[3]
+            end
+
+            let xs = [1, 2, 3], ys = [10, 20, 30]
+                x_eval = 1
+                @test fast_linear_interp(x_eval, xs, ys) == ys[1]
+                x_eval = 3
+                @test fast_linear_interp(x_eval, xs, ys) == ys[3]
+                x_eval = 0
+                @test fast_linear_interp(x_eval, xs, ys) == ys[1]
+                x_eval = 4
+                @test fast_linear_interp(x_eval, xs, ys) == ys[3]
+            end
+
+            # test normal cases
+            let knots = [1, 5, 7], lower = 1, upper = 3
+                x_eval = 2.5
+                @test fast_linear_interp(x_eval, knots, lower, upper) ≈ 6
+            end
+
+            let xs = [1, 2, 3], ys = [10, 20, 30]
+                x_eval = 2.5
+                @test fast_linear_interp(x_eval, xs, ys) ≈ 25
+            end
+
+            # test type stability
+            
+            let knots = [1, 5, 7], lower = 1, upper = 3
+                x_eval = 2.5
+                @inferred fast_linear_interp(x_eval, knots, lower, upper)
+            end
+
+            let knots = [1, 5, 7], lower = 1, upper = 3
+                x_eval = 2
+                @inferred fast_linear_interp(x_eval, knots, lower, upper)
+            end
+
+            let knots = [1., 5., 7.], lower = 1., upper = 3.
+                x_eval = 2
+                @inferred fast_linear_interp(x_eval, knots, lower, upper)
+            end
+
+            # test Float32
+            let knots = [1f0, 5f0, 7f0], lower = 1f0, upper = 3f0
+                x_eval = 2
+                typeof(fast_linear_interp(x_eval, knots, lower, upper)) == Float32
+            end
+
+
+        end
+
+
         @testset "Rotations" begin
 
             e_z = SA[0.0, 0.0, 1.0]
