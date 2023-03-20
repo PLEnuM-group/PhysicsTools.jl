@@ -5,6 +5,7 @@ using LinearAlgebra
 using DataStructures
 using Distributions
 using Roots
+using Polynomials
 
 export fast_linear_interp, transform_integral_range
 export integrate_gauss_quad
@@ -12,9 +13,11 @@ export sph_to_cart, apply_rot, cart_to_sph, rot_to_ez_fast, rot_from_ez_fast, ca
 export CategoricalSetDistribution
 export sample_cherenkov_track_direction
 export rand_gamma
-export fwhm
+export fwhm, calc_gamma_shape_mean_fwhm
 export repeat_for, repeat_for!, split_by
 export ssc
+export gumbel_width_from_fwhm
+
 
 const GL10 = gausslegendre(10)
 
@@ -397,6 +400,42 @@ function fwhm(d::UnivariateDistribution, xmode::Real; xlims=(-20, 20))
     z1 = find_zero(x -> pdf(d, x) - ymode / 2, (xmode, xlims[2]), A42())
     return z1 - z0
 end
+
+"""
+    calc_gamma_shape_mean_fwhm(mean, target_fwhm)
+
+Calculate distribution parameters `alpha` and `theta` for a Gamma distribution from
+desired FWHM
+"""
+function calc_gamma_shape_mean_fwhm(mean, target_fwhm)
+    function _optim(theta)
+        alpha = mean / theta
+        tt_dist = Gamma(alpha, theta)
+        fwhm(tt_dist, mode(tt_dist); xlims=(0, 100)) - target_fwhm
+    end
+
+    find_zero(_optim, [0.1 * target_fwhm^2 / mean, 10 * target_fwhm^2 / mean], A42())
+end
+
+
+"""
+    fit_gumbel_fwhm_width()
+
+Fit a polynomial to the relationship between Gumbel width and FWHM
+"""
+function fit_gumbel_fwhm_width()
+    # find relationship between Gumbel width and FWHM
+    widths = 0.5:0.01:5
+    # Fit the function width = a * fwhm + b
+    poly = Polynomials.fit(map(w -> fwhm(Gumbel(0, w), w), widths), widths, 1)
+    poly
+end
+
+"""
+    gumbel_width_from_fwhm(theta)
+Return FWHM of a Gumbel distribution with parameters `mu`=0, `theta`
+"""
+gumbel_width_from_fwhm = fit_gumbel_fwhm_width()
 
 
 end
