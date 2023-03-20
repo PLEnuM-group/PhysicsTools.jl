@@ -221,7 +221,7 @@ function cart_to_sph(x::Real, y::Real, z::Real)
     return T(theta), T(phi)
 end
 
-cart_to_sph(x::SVector{3,<:Real}) = cart_to_sph(x[1], x[2], x[3])
+cart_to_sph(x::AbstractVector) = cart_to_sph(x[1], x[2], x[3])
 
 
 
