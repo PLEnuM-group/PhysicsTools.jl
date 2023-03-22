@@ -196,6 +196,7 @@ function sph_to_cart(theta::Real, phi::Real)
     return SA[x, y, z]
 end
 
+sph_to_cart(x::AbstractVector) = sph_to_cart(x[1], x[2])
 
 """
     cart_to_sph(x::Real, y::Real, z::Real)
@@ -206,6 +207,7 @@ Uses ISO convetion (inclination, azimuth).
 function cart_to_sph(x::Real, y::Real, z::Real)
 
     T = promote_type(typeof(x), typeof(y), typeof(z))
+    z = clamp(z, -1, 1)
     if z == 1
         return zero(T), zero(T)
     elseif z == -1
