@@ -17,6 +17,7 @@ export fwhm, calc_gamma_shape_mean_fwhm
 export repeat_for, repeat_for!, split_by
 export ssc
 export gumbel_width_from_fwhm
+export cart_to_cyl, cart_to_cyl
 
 
 const GL10 = gausslegendre(10)
@@ -209,9 +210,9 @@ function cart_to_sph(x::Real, y::Real, z::Real)
     T = promote_type(typeof(x), typeof(y), typeof(z))
     z = clamp(z, -1, 1)
     if z == 1
-        return zero(T), zero(T)
+        return SA{T}[0, 0]
     elseif z == -1
-        return T(π), zero(T)
+        return SA{T}[π, 0]
     end
 
     theta = acos(z)
@@ -220,10 +221,37 @@ function cart_to_sph(x::Real, y::Real, z::Real)
     phi = phi < 0 ? phi + 2 * π : phi
     phi = phi > 2 * π ? phi - 2 * π : phi
 
-    return T(theta), T(phi)
+    return SA{T}[theta, phi]
 end
 
 cart_to_sph(x::AbstractVector) = cart_to_sph(x[1], x[2], x[3])
+
+"""
+    cart_to_cyl(x::Real, y::Real, z::Real)
+Convert cartesian to cylinder coordinates (rho, phi, z)
+"""
+function cart_to_cyl(x::Real, y::Real, z::Real)
+
+    T = promote_type(typeof(x), typeof(y), typeof(z))
+
+    rho = sqrt(x^2 + y^2)
+    phi = acos(x / rho)
+    phi = y >= 0 ? phi : 2*π - phi
+    return SA{T}[rho, phi, z]
+end
+
+cart_to_cyl(x::AbstractArray) = cart_to_cyl(x[1], x[2], x[3])
+
+"""
+    cyl_to_cart(rho::Real, phi::Real, z::Real)
+Convert cylinder (rho, phi, z) to cartesian coordinated
+"""
+function cyl_to_cart(rho::Real, phi::Real, z::Real)
+    T = promote_type(typeof(rho), typeof(phi), typeof(z))
+    return SA{T}[rho * cos(phi), rho*sin(phi), z]
+end
+
+cyl_to_cart(x::AbstractArray) = cyl_to_cart(x[1], x[2], x[3])
 
 
 
@@ -291,11 +319,11 @@ end
 
 
 """
-    rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+    rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
 Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `operand`.
 """
-@inline function rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+@inline function rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
     if abs(a[3]) == T(1)
         return @SVector[operand[1], copysign(operand[2], a[3]), copysign(operand[3], a[3])]
