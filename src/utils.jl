@@ -215,8 +215,8 @@ function cart_to_sph(x::Real, y::Real, z::Real)
         return SA{T}[π, 0]
     end
 
-    theta = acos(z)
-    phi = sign(y) * acos(x / sqrt(x^2 + y^2))
+    theta = acos(z)    
+    phi = atan(y, x)
 
     phi = phi < 0 ? phi + 2 * π : phi
     phi = phi > 2 * π ? phi - 2 * π : phi
