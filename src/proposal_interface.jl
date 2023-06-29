@@ -2,7 +2,7 @@ module ProposalInterface
 using PyCall
 using StaticArrays
 
-import ..Particle
+import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus
 
 
 export proposal_secondary_to_particle, propagate_muon
