@@ -14,7 +14,7 @@ function __init__()
     tmp = pyimport("proposal")
    
     if !isdir(joinpath(PKGDIR, "assets/proposal_tables"))
-        mkdir(joinpath(PKGDIR, "assets/proposal_tables"))
+        mkpath(joinpath(PKGDIR, "assets/proposal_tables"))
     end
     tmp.InterpolationSettings.tables_path = joinpath(PKGDIR, "assets/proposal_tables")
     copy!(pp, tmp)
