@@ -30,16 +30,16 @@ particle_shape(::Type{<:PGamma}) = Cascade()
 particle_shape(::Type{<:PMuMinus}) = Track()
 particle_shape(::Type{<:PMuPlus}) = Track()
 
-mutable struct Particle{PT,DT,TT,ET,LT,PType<:ParticleType}
-    position::SVector{3,PT}
-    direction::SVector{3,DT}
-    time::TT
-    energy::ET
-    length::LT
+mutable struct Particle{T,PType<:ParticleType}
+    position::SVector{3,T}
+    direction::SVector{3,T}
+    time::T
+    energy::T
+    length::T
     type::Type{PType}
 end
 
-particle_shape(::Particle{PT,DT,TT,ET,LT,PType}) where {PT,DT,TT,ET,LT,PType} = particle_shape(PType)
+particle_shape(::Particle{T,PType}) where {T, PType} = particle_shape(PType)
 
 
 function Base.convert(::Type{Particle{T}}, x::Particle) where {T}
