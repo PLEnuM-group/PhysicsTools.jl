@@ -283,7 +283,7 @@ struct CategoricalSetDistribution{T}
     end
 end
 
-function Base.:(==)(a::CategoricalSetDistributionn, b::CategoricalSetDistribution)
+function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution)
     return (a.set == b.set) && (a.cat == b.cat)
 end
 
