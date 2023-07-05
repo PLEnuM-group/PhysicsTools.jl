@@ -284,7 +284,7 @@ struct CategoricalSetDistribution{T}
 end
 
 function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution)
-    return (a.set == b.set) && (a.cat == b.cat)
+    return (collect(a.set) == collect(b.set)) && (a.cat == b.cat)
 end
 
 Base.rand(pdist::CategoricalSetDistribution) = pdist.set[rand(pdist.cat)]

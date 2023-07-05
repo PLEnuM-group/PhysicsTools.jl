@@ -56,14 +56,17 @@ function propagate_muon(particle)
     stochastic_losses = secondaries.stochastic_losses()
     stochastic_losses = proposal_secondary_to_particle.(stochastic_losses)
 
+
+    T = eltype(position)
+
     final_state = secondaries.final_state()
-    length = final_state.propagated_distance / 100
+    length = T(final_state.propagated_distance / 100)
 
     final_state = Particle(
         position .+ length .* direction,
         direction,
-        final_state.time * 1E9,
-        final_state.energy / 1E3,
+        T(final_state.time * 1E9),
+        T(final_state.energy / 1E3),
         length,
         particle.type)
 
