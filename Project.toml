@@ -1,7 +1,7 @@
 name = "PhysicsTools"
 uuid = "aacfb283-0df6-49c4-85a4-270b72c3b0a9"
 authors = ["Christian Haack"]
-version = "0.4.2"
+version = "0.4.3"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
@@ -21,7 +21,7 @@ FastGaussQuadrature = "0.4"
 Reexport = "1"
 Roots = "2"
 StaticArrays = "1"
-julia = "1.8"
+julia = "1.9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
