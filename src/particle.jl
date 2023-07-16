@@ -1,6 +1,7 @@
 using StaticArrays
 
 export ParticleType, PEPlus, PEMinus, PGamma, PMuMinus, PMuPlus
+export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar
 export pdf_code, particle_shape
 export Track, Cascade
 export Particle, ParticleShape
@@ -13,6 +14,12 @@ struct PEMinus <: ParticleType end
 struct PGamma <: ParticleType end
 struct PMuPlus <: ParticleType end
 struct PMuMinus <: ParticleType end
+struct PNuE <: ParticleType end
+struct PNuMu <: ParticleType end
+struct PNuTau <: ParticleType end
+struct PNuEBar <: ParticleType end
+struct PNuMuBar <: ParticleType end
+struct PNuTauBar <: ParticleType end
 
 abstract type ParticleShape end
 struct Track <: ParticleShape end
@@ -23,6 +30,12 @@ pdg_code(::Type{PEMinus}) = 11
 pdg_code(::Type{PGamma}) = 22
 pdg_code(::Type{PMuMinus}) = 13
 pdg_code(::Type{PMuPlus}) = -13
+pdg_code(::Type{PNuE}) = 12
+pdg_code(::Type{PNuEBar}) = -12
+pdg_code(::Type{PNuMu}) = 14
+pdg_code(::Type{PNuMuBar}) = -14
+pdg_code(::Type{PNuTau}) = 16
+pdg_code(::Type{PNuTauBar}) = -16
 
 particle_shape(::Type{<:PEPlus}) = Cascade()
 particle_shape(::Type{<:PEMinus}) = Cascade()
