@@ -6,6 +6,7 @@ using DataStructures
 using Distributions
 using Roots
 using Polynomials
+using Random
 
 export fast_linear_interp, transform_integral_range
 export integrate_gauss_quad
@@ -287,7 +288,8 @@ function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution
     return (collect(a.set) == collect(b.set)) && (a.cat == b.cat)
 end
 
-Base.rand(pdist::CategoricalSetDistribution) = pdist.set[rand(pdist.cat)]
+Base.rand(rng::AbstractRNG, pdist::CategoricalSetDistribution) = pdist.set[rand(rng, pdist.cat)]
+Base.rand(pdist::CategoricalSetDistribution) = rand(default_rng(), pdist)
 
 
 ssc(v::AbstractVector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
