@@ -2,10 +2,12 @@ using StaticArrays
 
 export ParticleType, PEPlus, PEMinus, PGamma, PMuMinus, PMuPlus
 export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower
+export PLightSabre
 export pdf_code, particle_shape
 export Track, Cascade
 export Particle, ParticleShape
 export ptype_for_code
+export is_neutrino
 
 
 abstract type ParticleType end
@@ -22,9 +24,10 @@ struct PNuEBar <: ParticleType end
 struct PNuMuBar <: ParticleType end
 struct PNuTauBar <: ParticleType end
 struct PHadronShower <: ParticleType end
+struct PLightSabre <: ParticleType end
 struct PUnknown <: ParticleType end
 
-const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower]
+const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PLightSabre]
 
 abstract type ParticleShape end
 struct Track <: ParticleShape end
@@ -58,8 +61,17 @@ particle_shape(::Type{<:PEMinus}) = Cascade()
 particle_shape(::Type{<:PGamma}) = Cascade()
 particle_shape(::Type{<:PMuMinus}) = Track()
 particle_shape(::Type{<:PMuPlus}) = Track()
-
 particle_shape(::Type{<:PHadronShower}) = Cascade()
+particle_shape(::Type{<:PLightSabre}) = Track()
+
+is_neutrino(::Type) = false
+is_neutrino(::Type{PNuE}) = true
+is_neutrino(::Type{PNuEBar}) = true
+is_neutrino(::Type{PNuMu}) = true
+is_neutrino(::Type{PNuMuBar}) = true
+is_neutrino(::Type{PNuTau}) = true
+is_neutrino(::Type{PNuTauBar}) = true
+
 
 
 mutable struct Particle{T,PType<:ParticleType}
