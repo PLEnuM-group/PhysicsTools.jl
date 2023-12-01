@@ -2,7 +2,7 @@ module ProposalInterface
 using PyCall
 using StaticArrays
 
-import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus
+import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus, ..PHadronShower, ..ParticleType
 
 
 export proposal_secondary_to_particle, propagate_muon
@@ -26,7 +26,27 @@ function proposal_secondary_to_particle(loss)
     dir = SA[loss.direction.x, loss.direction.y, loss.direction.z]
     time = loss.time * 1E9
 
-    return Particle(pos, dir, time, energy, 0.0, PEMinus)
+    pname = pp.particle.Interaction_Type(loss.type).name
+
+    if pname == "photonuclear"
+        ptype = PHadronShower
+    else
+        ptype = PEMinus
+    end
+
+    return Particle(pos, dir, time, energy, 0.0, ptype)
+end
+
+function make_propagator(ptype::Type{<:ParticleType})
+    if ptype == PMuMinus
+        ptype = pp.particle.MuMinusDef()
+    elseif ptype == PMuPlus
+        ptype = pp.particle.MuPlusDef()
+    else
+        error("Type $(ptype) not supported")
+    end
+    propagator = pp.Propagator(ptype, joinpath(PKGDIR, "assets/proposal_config.json"))
+    return propagator
 end
 
 
@@ -38,14 +58,7 @@ function propagate_muon(particle)
     time = particle.time
     energy = particle.energy
 
-    if particle.type == PMuMinus
-        ptype = pp.particle.MuMinusDef()
-    elseif particle.type == PMuPlus
-        ptype = pp.particle.MuPlusDef()
-    else
-        error("Type $(particle.type) not supported")
-    end
-    propagator = pp.Propagator(ptype, joinpath(PKGDIR, "assets/proposal_config.json"))
+    propagator = make_propagator(particle.type)
 
     initial_state = pp.particle.ParticleState()
     initial_state.energy = energy * 1E3
