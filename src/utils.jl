@@ -5,6 +5,9 @@ using LinearAlgebra
 using DataStructures
 using Distributions
 using Roots
+using Polynomials
+using Random
+using PhysicalConstants.CODATA2018
 
 export fast_linear_interp, transform_integral_range
 export integrate_gauss_quad
@@ -12,9 +15,12 @@ export sph_to_cart, apply_rot, cart_to_sph, rot_to_ez_fast, rot_from_ez_fast, ca
 export CategoricalSetDistribution
 export sample_cherenkov_track_direction
 export rand_gamma
-export fwhm
+export fwhm, calc_gamma_shape_mean_fwhm
 export repeat_for, repeat_for!, split_by
 export ssc
+export gumbel_width_from_fwhm
+export cart_to_cyl, cart_to_cyl
+export frank_tamm, frank_tamm_norm
 
 const GL10 = gausslegendre(10)
 
@@ -193,6 +199,7 @@ function sph_to_cart(theta::Real, phi::Real)
     return SA[x, y, z]
 end
 
+sph_to_cart(x::AbstractVector) = sph_to_cart(x[1], x[2])
 
 """
     cart_to_sph(x::Real, y::Real, z::Real)
@@ -203,22 +210,50 @@ Uses ISO convetion (inclination, azimuth).
 function cart_to_sph(x::Real, y::Real, z::Real)
 
     T = promote_type(typeof(x), typeof(y), typeof(z))
+    z = clamp(z, -1, 1)
     if z == 1
-        return zero(T), zero(T)
+        return SA{T}[0, 0]
     elseif z == -1
-        return T(π), zero(T)
+        return SA{T}[π, 0]
     end
 
-    theta = acos(z)
-    phi = sign(y) * acos(x / sqrt(x^2 + y^2))
+    theta = acos(z)    
+    phi = atan(y, x)
 
     phi = phi < 0 ? phi + 2 * π : phi
     phi = phi > 2 * π ? phi - 2 * π : phi
 
-    return T(theta), T(phi)
+    return SA{T}[theta, phi]
 end
 
-cart_to_sph(x::SVector{3,<:Real}) = cart_to_sph(x[1], x[2], x[3])
+cart_to_sph(x::AbstractVector) = cart_to_sph(x[1], x[2], x[3])
+
+"""
+    cart_to_cyl(x::Real, y::Real, z::Real)
+Convert cartesian to cylinder coordinates (rho, phi, z)
+"""
+function cart_to_cyl(x::Real, y::Real, z::Real)
+
+    T = promote_type(typeof(x), typeof(y), typeof(z))
+
+    rho = sqrt(x^2 + y^2)
+    phi = acos(x / rho)
+    phi = y >= 0 ? phi : 2*π - phi
+    return SA{T}[rho, phi, z]
+end
+
+cart_to_cyl(x::AbstractArray) = cart_to_cyl(x[1], x[2], x[3])
+
+"""
+    cyl_to_cart(rho::Real, phi::Real, z::Real)
+Convert cylinder (rho, phi, z) to cartesian coordinated
+"""
+function cyl_to_cart(rho::Real, phi::Real, z::Real)
+    T = promote_type(typeof(rho), typeof(phi), typeof(z))
+    return SA{T}[rho * cos(phi), rho*sin(phi), z]
+end
+
+cyl_to_cart(x::AbstractArray) = cyl_to_cart(x[1], x[2], x[3])
 
 
 
@@ -250,7 +285,12 @@ struct CategoricalSetDistribution{T}
     end
 end
 
-Base.rand(pdist::CategoricalSetDistribution) = pdist.set[rand(pdist.cat)]
+function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution)
+    return (collect(a.set) == collect(b.set)) && (a.cat == b.cat)
+end
+
+Base.rand(rng::AbstractRNG, pdist::CategoricalSetDistribution) = pdist.set[rand(rng, pdist.cat)]
+Base.rand(pdist::CategoricalSetDistribution) = rand(default_rng(), pdist)
 
 
 ssc(v::AbstractVector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
@@ -286,11 +326,11 @@ end
 
 
 """
-    rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+    rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
 Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `operand`.
 """
-@inline function rot_to_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+@inline function rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
     if abs(a[3]) == T(1)
         return @SVector[operand[1], copysign(operand[2], a[3]), copysign(operand[3], a[3])]
@@ -397,6 +437,64 @@ function fwhm(d::UnivariateDistribution, xmode::Real; xlims=(-20, 20))
     z1 = find_zero(x -> pdf(d, x) - ymode / 2, (xmode, xlims[2]), A42())
     return z1 - z0
 end
+
+"""
+    calc_gamma_shape_mean_fwhm(mean, target_fwhm)
+
+Calculate distribution parameters `alpha` and `theta` for a Gamma distribution from
+desired FWHM
+"""
+function calc_gamma_shape_mean_fwhm(mean, target_fwhm)
+    function _optim(theta)
+        alpha = mean / theta
+        tt_dist = Gamma(alpha, theta)
+        fwhm(tt_dist, mode(tt_dist); xlims=(0, 100)) - target_fwhm
+    end
+
+    find_zero(_optim, [0.1 * target_fwhm^2 / mean, 10 * target_fwhm^2 / mean], A42())
+end
+
+
+"""
+    fit_gumbel_fwhm_width()
+
+Fit a polynomial to the relationship between Gumbel width and FWHM
+"""
+function fit_gumbel_fwhm_width()
+    # find relationship between Gumbel width and FWHM
+    widths = 0.5:0.01:5
+    # Fit the function width = a * fwhm + b
+    poly = Polynomials.fit(map(w -> fwhm(Gumbel(0, w), w), widths), widths, 1)
+    poly
+end
+
+"""
+    gumbel_width_from_fwhm(theta)
+Return FWHM of a Gumbel distribution with parameters `mu`=0, `theta`
+"""
+gumbel_width_from_fwhm = fit_gumbel_fwhm_width()
+
+
+"""
+    frank_tamm(wavelength::Real, ref_index::T) where {T<:Real}
+
+Evaluate Frank-Tamm formula
+"""
+function frank_tamm(wavelength::Real, ref_index::T) where {T<:Real}
+    return T(2 * pi * FineStructureConstant / wavelength^2 * (1 - 1 / ref_index^2))
+end
+
+"""
+    frank_tamm_norm(wl_range::Tuple{T, T}, ref_index_func::Function) where {T<:Real}
+
+Calculate number of Cherenkov photons per length in interval `wl_range`.
+Returned number is in units m^-1.
+"""
+function frank_tamm_norm(wl_range::Tuple{T,T}, ref_index_func::Function) where {T<:Real}
+    f(x) = frank_tamm(x, ref_index_func(x))
+    integrate_gauss_quad(f, wl_range[1], wl_range[2]) * T(1E9)
+end
+
 
 
 end
