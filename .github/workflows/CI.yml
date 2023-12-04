@@ -18,8 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.9.0-rc1'
-          - '1.8'
+          - '1.9'
+          - '1.9.3'
           - 'nightly'
         os:
           - ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
           - x64
           - x86
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
