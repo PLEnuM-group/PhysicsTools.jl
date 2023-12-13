@@ -77,15 +77,6 @@ function ptype_for_code(code::Integer)
     return PUnknown
 end
 
-
-"""
-    particle_shape(partricle)
-
-Return struct corresponding to shape of argument-particle's signature
-    
-# Arguments
-- `particle::Type`: Particle to check shape of.
-"""
 particle_shape(::Type{<:PEPlus}) = Cascade()
 particle_shape(::Type{<:PEMinus}) = Cascade()
 particle_shape(::Type{<:PGamma}) = Cascade()
@@ -94,15 +85,6 @@ particle_shape(::Type{<:PMuPlus}) = Track()
 particle_shape(::Type{<:PHadronShower}) = Cascade()
 particle_shape(::Type{<:PLightSabre}) = Track()
 
-
-"""
-    is_neutrino(particle)
-
-Return true if particle is of any neutrino subtype (PNuE, PNuEBar, PNuMu, PNuMuBar, PNuTau, PNuTauBar), otherwise return false.
-
-# Arguments
-- `particle::Type`: Particle to check wheather is a neutrino.
-"""
 is_neutrino(::Type) = false
 is_neutrino(::Type{PNuE}) = true
 is_neutrino(::Type{PNuEBar}) = true
@@ -115,14 +97,14 @@ is_neutrino(::Type{PNuTauBar}) = true
 """
     Particle{T,PType<:ParticleType}
 
-Struct containing information of a single particle inside the detector
+Struct containing information of a single particle
 
 # Fields
 - `position::SVector{3,T}`: Particle position given as a three dimensional static vector in detector coordinates
 - `direction::SVector{3,T}`: Particle direction of motion given as a three dimensional static vector in detector coordinates
-- `time::T`: Time of the event this particle corresponds to, given in unites of (?)s
-- `energy::T`: Total energy of the particle given in unites of (?)eV
-- `length::T`: Length of particle track given in unites of (?)m
+- `time::T`: Time of the event this particle corresponds to, given in unites of ns
+- `energy::T`: Total energy of the particle given in unites of GeV
+- `length::T`: Length of particle track given in unites of m
 - `type::Type{PType}`: Particle type, chosen from any ParticleType subtype (PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PLightSabre, PUnknown)
 """
 mutable struct Particle{T,PType<:ParticleType}
@@ -134,7 +116,27 @@ mutable struct Particle{T,PType<:ParticleType}
     type::Type{PType}
 end
 
+
+"""
+    particle_shape(partricle)
+
+Return struct corresponding to shape of argument-particle's signature
+    
+# Arguments
+- `particle::Type`: Particle to check shape of.
+"""
 particle_shape(::Particle{T,PType}) where {T,PType} = particle_shape(PType)
+
+
+"""
+    is_neutrino(particle)
+
+Return true if particle is of any neutrino subtype (PNuE, PNuEBar, PNuMu, PNuMuBar, PNuTau, PNuTauBar), otherwise return false.
+
+# Arguments
+- `particle::Type`: Particle to check wheather is a neutrino.
+"""
+is_neutrino(::Particle{T,PType}) where {T,PType} = is_neutrino(PType)
 
 
 function Base.convert(::Type{Particle{T}}, x::Particle) where {T}
