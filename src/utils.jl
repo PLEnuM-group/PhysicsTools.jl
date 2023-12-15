@@ -290,7 +290,7 @@ function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution
 end
 
 Base.rand(rng::AbstractRNG, pdist::CategoricalSetDistribution) = pdist.set[rand(rng, pdist.cat)]
-Base.rand(pdist::CategoricalSetDistribution) = rand(default_rng(), pdist)
+Base.rand(pdist::CategoricalSetDistribution) = rand(Random.default_rng(), pdist)
 
 
 ssc(v::AbstractVector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
