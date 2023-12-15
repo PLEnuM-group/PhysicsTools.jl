@@ -16,16 +16,7 @@ const PKGDIR = pkgdir(@__MODULE__)
 
 function __init__()
     
-    try
-        tmp = pyimport("proposal")
-    catch
-        @warn "Could not import proposal. Attempting to install..."
-        ENV["PYTHON"] = ""
-        Pkg.build("PyCall")
-        Conda.pip_interop(true)
-        Conda.pip("install", "proposal")
-        tmp = pyimport("proposal")
-    end
+    tmp = pyimport("proposal")
    
     if !isdir(joinpath(PKGDIR, "assets/proposal_tables"))
         mkpath(joinpath(PKGDIR, "assets/proposal_tables"))
