@@ -1,6 +1,8 @@
 module ProposalInterface
 using PyCall
 using StaticArrays
+using Conda
+import Pkg
 
 import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus, ..PHadronShower, ..ParticleType
 
@@ -10,8 +12,18 @@ export proposal_secondary_to_particle, propagate_muon
 const pp = PyNULL()
 
 const PKGDIR = pkgdir(@__MODULE__)
+
 function __init__()
-    tmp = pyimport("proposal")
+    
+    try
+        tmp = pyimport("proposal")
+    catch
+        ENV["PYTHON"] = ""
+        Pkg.build("PyCall")
+        Conda.pip_interop(true)
+        Conda.pip("install", "proposal")
+        tmp = pyimport("proposal")
+    end
    
     if !isdir(joinpath(PKGDIR, "assets/proposal_tables"))
         mkpath(joinpath(PKGDIR, "assets/proposal_tables"))
