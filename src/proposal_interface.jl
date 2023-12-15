@@ -2,6 +2,7 @@ module ProposalInterface
 using PyCall
 using StaticArrays
 using Conda
+using Logging
 import Pkg
 
 import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus, ..PHadronShower, ..ParticleType
@@ -18,6 +19,7 @@ function __init__()
     try
         tmp = pyimport("proposal")
     catch
+        @warn "Could not import proposal. Attempting to install..."
         ENV["PYTHON"] = ""
         Pkg.build("PyCall")
         Conda.pip_interop(true)
