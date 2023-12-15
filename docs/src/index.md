@@ -10,5 +10,6 @@ Documentation for [PhysicsTools](https://github.com/PLEnuM-group/PhysicsTools.jl
 ```
 
 ```@autodocs
-Modules = [PhysicsTools, PhysicsTools.Types, PhysicsTools.Utils]
+Modules = [PhysicsTools, PhysicsTools.Types, PhysicsTools.Utils, PhysicsTools.ProposalInterface]
+Pages = ["particle.jl"]
 ```
