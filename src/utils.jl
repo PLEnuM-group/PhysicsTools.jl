@@ -30,6 +30,11 @@ Repeat each slice along the second dimension of x for n times
 """
 repeat_for(x::AbstractMatrix, n::AbstractVector) = repeat_for!(x, n, similar(x, (size(x, 1), sum(n))))
 
+"""
+    repeat_for!(x::AbstractMatrix, n::AbstractVector, out)
+
+TBW
+"""
 function repeat_for!(x::AbstractMatrix, n::AbstractVector, out)
     ix = firstindex(x, 2)
     for i in eachindex(n)
@@ -176,7 +181,7 @@ end
     integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}
 Integrate `f` in interval [`a`, `b`] using Gaussian quadrature with `nodes` and `weights`.
 """
-function integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}    
+function integrate_gauss_quad(f::T, a::Real, b::Real, nodes::AbstractVector{U}, weights::AbstractVector{U}) where {T<:Function,U<:Real}
     dot(weights, map(x -> transform_integral_range(x, f, (a, b)), nodes))
 end
 
@@ -217,7 +222,7 @@ function cart_to_sph(x::Real, y::Real, z::Real)
         return SA{T}[π, 0]
     end
 
-    theta = acos(z)    
+    theta = acos(z)
     phi = atan(y, x)
 
     phi = phi < 0 ? phi + 2 * π : phi
@@ -238,7 +243,7 @@ function cart_to_cyl(x::Real, y::Real, z::Real)
 
     rho = sqrt(x^2 + y^2)
     phi = acos(x / rho)
-    phi = y >= 0 ? phi : 2*π - phi
+    phi = y >= 0 ? phi : 2 * π - phi
     return SA{T}[rho, phi, z]
 end
 
@@ -250,7 +255,7 @@ Convert cylinder (rho, phi, z) to cartesian coordinated
 """
 function cyl_to_cart(rho::Real, phi::Real, z::Real)
     T = promote_type(typeof(rho), typeof(phi), typeof(z))
-    return SA{T}[rho * cos(phi), rho*sin(phi), z]
+    return SA{T}[rho*cos(phi), rho*sin(phi), z]
 end
 
 cyl_to_cart(x::AbstractArray) = cyl_to_cart(x[1], x[2], x[3])
@@ -290,7 +295,7 @@ function Base.:(==)(a::CategoricalSetDistribution, b::CategoricalSetDistribution
 end
 
 Base.rand(rng::AbstractRNG, pdist::CategoricalSetDistribution) = pdist.set[rand(rng, pdist.cat)]
-Base.rand(pdist::CategoricalSetDistribution) = rand(default_rng(), pdist)
+Base.rand(pdist::CategoricalSetDistribution) = rand(Random.default_rng(), pdist)
 
 
 ssc(v::AbstractVector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
