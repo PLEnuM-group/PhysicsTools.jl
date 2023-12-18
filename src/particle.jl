@@ -148,3 +148,51 @@ function Base.convert(::Type{Particle{T}}, x::Particle) where {T}
 
     return Particle(pos, dir, time, energy, length, x.type)
 end
+
+
+Base.show(io::IO, ::Type{ParticleType}) = error("Invalid particle type")
+Base.show(io::IO, ::Type{PMuPlus}) = print(io, "μ+")
+Base.show(io::IO, ::Type{PMuMinus}) = print(io, "μ-")
+Base.show(io::IO, ::Type{PEPlus}) = print(io, "e+")
+Base.show(io::IO, ::Type{PEMinus}) = print(io, "e-")
+Base.show(io::IO, ::Type{PGamma}) = print(io, "Photon")
+Base.show(io::IO, ::Type{PNuE}) = print(io, "v_e")
+Base.show(io::IO, ::Type{PNuEBar}) = print(io, "v̄_e")
+Base.show(io::IO, ::Type{PNuMu}) = print(io, "v_μ")
+Base.show(io::IO, ::Type{PNuMuBar}) = print(io, "v̄_μ")
+Base.show(io::IO, ::Type{PNuTau}) = print(io, "v_τ")
+Base.show(io::IO, ::Type{PNuTauBar}) = print(io, "v̄_τ")
+Base.show(io::IO, ::Type{PUnknown}) = print(io, "Unknown Particle")
+
+Base.show(io::IO, ::MIME"text/plain", ::Type{ParticleType}) = error("Invalid particle type")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PMuPlus}) = print(io, "Anti Muon")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PMuMinus}) = print(io, "Muon")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PEPlus}) = print(io, "Positron")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PEMinus}) = print(io, "Electron")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PGamma}) = print(io, "Gamma Ray")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuE}) = print(io, "Electron Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuEBar}) = print(io, "Electron Anti-Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuMu}) = print(io, "Muon Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuMuBar}) = print(io, "Muon Anti-Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuTau}) = print(io, "Tauon Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PNuTauBar}) = print(io, "Tauon Anti-Neutrino")
+Base.show(io::IO, ::MIME"text/plain", ::Type{PUnknown}) = print(io, "Unknown Particle")
+
+
+
+function Base.show(io::IO, part::Particle)
+
+    print(io, part.type, "(", "Pos:", part.position, ", Dir:", part.direction, ", T:", part.time, " ns, E:", part.energy, " GeV, L:", part.length, " m)")
+
+end
+
+function Base.show(io::IO, ::MIME"text/plain", part::Particle)
+
+    show(io, MIME("text/plain"), part.type)
+    print(io, " with:\n")
+    print(io, "    Position: ", part.position, "\n")
+    print(io, "    Direction: ", part.direction, "\n")
+    print(io, "    Time: ", part.time, " ns\n")
+    print(io, "    Energy: ", part.energy, " GeV\n")
+    print(io, "    Length: ", part.length, " m\n")
+end
