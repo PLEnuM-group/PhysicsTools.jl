@@ -2,7 +2,7 @@
 
 julia_version = "1.9.4"
 manifest_format = "2.0"
-project_hash = "becaa79014fa2f60c5ad5e4653b66b143dc6c158"
+project_hash = "2e0e360dd06ab3cec8fed2cca96914b1d18fc3b5"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -120,9 +120,9 @@ version = "0.6.8"
 
 [[deps.FastGaussQuadrature]]
 deps = ["LinearAlgebra", "SpecialFunctions", "StaticArrays"]
-git-tree-sha1 = "0f478d8bad6f52573fb7658a263af61f3d96e43a"
+git-tree-sha1 = "8ef0363cffeedb7e73339b664ce6d33cc278a3c4"
 uuid = "442a2c76-b920-505d-bb47-c5924d526838"
-version = "0.5.1"
+version = "1.0.1"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -318,18 +318,20 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 version = "1.9.2"
 
 [[deps.Polynomials]]
-deps = ["LinearAlgebra", "RecipesBase"]
-git-tree-sha1 = "3aa2bb4982e575acd7583f01531f241af077b163"
+deps = ["LinearAlgebra", "RecipesBase", "Setfield", "SparseArrays"]
+git-tree-sha1 = "a9c7a523d5ed375be3983db190f6a5874ae9286d"
 uuid = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
-version = "3.2.13"
+version = "4.0.6"
 
     [deps.Polynomials.extensions]
     PolynomialsChainRulesCoreExt = "ChainRulesCore"
+    PolynomialsFFTWExt = "FFTW"
     PolynomialsMakieCoreExt = "MakieCore"
     PolynomialsMutableArithmeticsExt = "MutableArithmetics"
 
     [deps.Polynomials.weakdeps]
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
     MakieCore = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
     MutableArithmetics = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
 
