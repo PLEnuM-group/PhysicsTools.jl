@@ -3,11 +3,13 @@ using StaticArrays
 export ParticleType, PEPlus, PEMinus, PGamma, PMuMinus, PMuPlus
 export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower
 export PLightSabre
+export PUnknown
 export pdf_code, particle_shape
 export Track, Cascade
 export Particle, ParticleShape
 export ptype_for_code
 export is_neutrino
+export pdg_code
 
 
 abstract type ParticleType end
