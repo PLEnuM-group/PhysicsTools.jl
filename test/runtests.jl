@@ -5,6 +5,10 @@ using StaticArrays
 using Distributions
 
 @testset "PhysicsTools.jl" begin
+
+    include("runtestsParticleA.jl")
+    include("runtestsUtilsA.jl")
+
     @testset "Utils" begin
 
         @testset "fast_linear_interp" begin
@@ -43,7 +47,7 @@ using Distributions
             end
 
             # test type stability
-            
+
             let knots = [1, 5, 7], lower = 1, upper = 3
                 x_eval = 2.5
                 @inferred fast_linear_interp(x_eval, knots, lower, upper)
@@ -54,13 +58,13 @@ using Distributions
                 @inferred fast_linear_interp(x_eval, knots, lower, upper)
             end
 
-            let knots = [1., 5., 7.], lower = 1., upper = 3.
+            let knots = [1.0, 5.0, 7.0], lower = 1.0, upper = 3.0
                 x_eval = 2
                 @inferred fast_linear_interp(x_eval, knots, lower, upper)
             end
 
             # test Float32
-            let knots = [1f0, 5f0, 7f0], lower = 1f0, upper = 3f0
+            let knots = [1.0f0, 5.0f0, 7.0f0], lower = 1.0f0, upper = 3.0f0
                 x_eval = 2
                 typeof(fast_linear_interp(x_eval, knots, lower, upper)) == Float32
             end

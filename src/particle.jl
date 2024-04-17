@@ -30,7 +30,7 @@ struct PHadronShower <: ParticleType end,
 struct PLightSabre <: ParticleType end,
 struct PUnknown <: ParticleType end
 
-const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PLightSabre]
+const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PLightSabre, PUnknown]
 
 abstract type ParticleShape end
 

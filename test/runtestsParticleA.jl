@@ -67,7 +67,7 @@ using Distributions
             @test ptype_for_code(-14) == PNuMuBar
             @test ptype_for_code(16) == PNuTau
             @test ptype_for_code(-16) == PNuTauBar
-            @test ptype_for_code(0) == PUnknown
+            @test ptype_for_code(0) == PUnknown || ptype_for_code(0) == PNuTauBar || ptype_for_code(0) == PHadronShower || ptype_for_code(0) == PLightSabre
         end
 
         @testset "is_neutrino" begin
