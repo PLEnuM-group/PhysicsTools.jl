@@ -111,9 +111,3 @@ using Distributions
 
     end
 end
-
-
-#How to test errors?
-#chech negative numbers
-#check out of bound indicies
-#cart to cyl imprecise 0,0,1
