@@ -19,8 +19,9 @@ export fwhm, calc_gamma_shape_mean_fwhm
 export repeat_for, repeat_for!, split_by
 export ssc
 export gumbel_width_from_fwhm
-export cart_to_cyl, cart_to_cyl
+export cart_to_cyl, cyl_to_cart
 export frank_tamm, frank_tamm_norm
+export split_by!
 
 const GL10 = gausslegendre(10)
 
@@ -72,6 +73,7 @@ function split_by!(x::AbstractVector, n::AbstractVector, out)
         out[i] = x[start:start+l-1]
         start += l
     end
+    return out
 end
 
 
