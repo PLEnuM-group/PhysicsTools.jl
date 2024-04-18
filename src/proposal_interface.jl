@@ -42,6 +42,18 @@ function proposal_secondary_to_particle(loss)
     return Particle(pos, dir, time, energy, 0.0, ptype)
 end
 
+function proposal_continuous_to_particle(loss)
+    energy = loss.energy / 1E3
+    pos = SA[loss.start_position.x/100, loss.start_position.y/100, loss.start_position.z/100]
+    dir = SA[loss.direction_initial.x, loss.direction_initial.y, loss.direction_initial.z]
+    time = loss.time_initial * 1E9
+
+    ptype = PEPlus
+
+    return Particle(pos, dir, time, energy, 0.0, ptype)
+end
+
+
 function make_propagator(ptype::Type{<:ParticleType})
     if ptype == PMuMinus
         ptype = pp.particle.MuMinusDef()
@@ -55,15 +67,15 @@ function make_propagator(ptype::Type{<:ParticleType})
 end
 
 
-function propagate_muon(particle)
+function propagate_muon(particle; propagator=nothing, length=1E6)
 
     position = particle.position
     direction = particle.direction
-    length = particle.length
+    length = particle.length > 0 ? particle.length : length
     time = particle.time
     energy = particle.energy
 
-    propagator = make_propagator(particle.type)
+    propagator = isnothing(propagator) ? make_propagator(particle.type) : propagator
 
     initial_state = pp.particle.ParticleState()
     initial_state.energy = energy * 1E3
@@ -74,6 +86,7 @@ function propagate_muon(particle)
     stochastic_losses = secondaries.stochastic_losses()
     stochastic_losses = proposal_secondary_to_particle.(stochastic_losses)
 
+    continuous_losses = proposal_continuous_to_particle.(secondaries.continuous_losses())
 
     T = eltype(position)
 
@@ -88,7 +101,7 @@ function propagate_muon(particle)
         length,
         particle.type)
 
-    return final_state, stochastic_losses
+    return final_state, stochastic_losses, continuous_losses
 end
 
 end
