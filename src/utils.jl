@@ -21,6 +21,7 @@ export ssc
 export gumbel_width_from_fwhm
 export cart_to_cyl, cart_to_cyl
 export frank_tamm, frank_tamm_norm
+export percentile_of_score
 
 const GL10 = gausslegendre(10)
 
@@ -500,6 +501,47 @@ function frank_tamm_norm(wl_range::Tuple{T,T}, ref_index_func::Function) where {
     integrate_gauss_quad(f, wl_range[1], wl_range[2]) * T(1E9)
 end
 
+"""
+    percentile_of_score(x, score)
+
+Compute the percentile of a given score in an array.
+Uses linear interpolation between the two closest values in the array.
+
+# Arguments
+- `x`: Array of values.
+- `score`: Score to compute the percentile for.
+
+# Returns
+- `p`: Percentile of the score in the array.
+"""
+function percentile_of_score(x, score)
+    x = sort(x)
+    ix = searchsortedfirst(x, score)
+
+    if ix == lastindex(x) + 1
+        return 1.
+    end
+
+
+    if ix == firstindex(x)
+        return 0.
+    end
+
+    p_low = (ix-1) / length(x)
+    p_high = ix / length(x)
+    
+    dp = p_high - p_low
+
+    val_low = x[ix-1]
+    val_high = x[ix]
+    dval = val_high - val_low
+
+    val_along = (score-val_low) / dval
+
+    p = p_low + val_along * dp
+
+    return p
+end
 
 
 end
