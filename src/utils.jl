@@ -338,8 +338,10 @@ Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `oper
 """
 @inline function rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
-    if abs(a[3]) == T(1)
-        return @SVector[operand[1], copysign(operand[2], a[3]), copysign(operand[3], a[3])]
+    if a[3] == T(1)
+        return operand
+    elseif a[3] == T(-1)
+        return .- operand
     end
 
     a1sq = a[1]^2
@@ -360,9 +362,12 @@ Calc rotation matrix which rotates e_z to `a`. Applies resulting matrix to `oper
 """
 @inline function rot_from_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
 
-    if abs(a[3]) == T(1)
-        return @SVector[operand[1], copysign(operand[2], a[3]), copysign(operand[3], a[3])]
+    if a[3] == T(1)
+        return operand
+    elseif a[3] == T(-1)
+        return .- operand
     end
+
 
     a1sq = a[1]^2
     a2sq = a[2]^2
