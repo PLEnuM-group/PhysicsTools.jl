@@ -116,6 +116,8 @@ mutable struct Particle{T,PType<:ParticleType}
     type::Type{PType}
 end
 
+Particle(position::AbstractArray, direction::AbstractArray, time, energy, length, type) = Particle(SVector{3}(position), SVector{3}(direction), time, energy, length, type)
+
 
 """
     particle_shape(partricle)
