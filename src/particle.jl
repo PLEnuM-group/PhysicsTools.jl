@@ -13,19 +13,19 @@ export is_neutrino
 abstract type ParticleType end
 
 "Subtype of ParticleType, used to classify particles. pdg_code() can be used to find the corresponding particle PDF code."
-struct PEPlus <: ParticleType end,
-struct PEMinus <: ParticleType end,
-struct PGamma <: ParticleType end,
-struct PMuPlus <: ParticleType end,
-struct PMuMinus <: ParticleType end,
-struct PNuE <: ParticleType end,
-struct PNuMu <: ParticleType end,
-struct PNuTau <: ParticleType end,
-struct PNuEBar <: ParticleType end,
-struct PNuMuBar <: ParticleType end,
-struct PNuTauBar <: ParticleType end,
-struct PHadronShower <: ParticleType end,
-struct PLightSabre <: ParticleType end,
+struct PEPlus <: ParticleType end
+struct PEMinus <: ParticleType end
+struct PGamma <: ParticleType end
+struct PMuPlus <: ParticleType end
+struct PMuMinus <: ParticleType end
+struct PNuE <: ParticleType end
+struct PNuMu <: ParticleType end
+struct PNuTau <: ParticleType end
+struct PNuEBar <: ParticleType end
+struct PNuMuBar <: ParticleType end
+struct PNuTauBar <: ParticleType end
+struct PHadronShower <: ParticleType end
+struct PLightSabre <: ParticleType end
 struct PUnknown <: ParticleType end
 
 const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PLightSabre]
