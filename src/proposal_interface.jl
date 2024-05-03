@@ -67,11 +67,11 @@ function make_propagator(ptype::Type{<:ParticleType})
 end
 
 
-function propagate_muon(particle; propagator=nothing, length=1E6)
+function propagate_muon(particle; propagator=nothing, length=0)
 
     position = particle.position
     direction = particle.direction
-    length = particle.length > 0 ? particle.length : length
+    length = length > 0 ? length : particle.length
     time = particle.time
     energy = particle.energy
 
