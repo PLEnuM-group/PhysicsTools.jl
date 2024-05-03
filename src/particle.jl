@@ -8,6 +8,7 @@ export Track, Cascade
 export Particle, ParticleShape
 export ptype_for_code
 export is_neutrino
+export shift_particle
 
 
 abstract type ParticleType end
@@ -118,6 +119,23 @@ end
 
 Particle(position::AbstractArray, direction::AbstractArray, time, energy, length, type) = Particle(SVector{3}(position), SVector{3}(direction), time, energy, length, type)
 
+
+"""
+    shift_particle(particle::Particle, dist_along)
+
+Shifts the given particle along its direction by the specified distance.
+
+# Arguments
+- `particle::Particle`: The particle to be shifted.
+- `dist_along`: The distance to shift the particle along its direction.
+
+# Returns
+A new `Particle` object with the shifted position.
+
+"""
+function shift_particle(particle::Particle, dist_along) 
+    return Particle(particle.position + dist_along .* particle.direction, particle.direction, particle.time, particle.energy, particle.length, particle.type)
+end
 
 """
     particle_shape(partricle)
