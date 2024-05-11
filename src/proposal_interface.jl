@@ -1,7 +1,6 @@
 module ProposalInterface
-using PyCall
+using PythonCall
 using StaticArrays
-using Conda
 using Logging
 import Pkg
 
@@ -10,7 +9,7 @@ import ..Particle, ..PEMinus, ..PEPlus, ..PMuMinus, ..PMuPlus, ..PHadronShower, 
 
 export proposal_secondary_to_particle, propagate_muon
 
-const pp = PyNULL()
+const pp = PythonCall.pynew()
 
 const PKGDIR = pkgdir(@__MODULE__)
 
@@ -22,16 +21,24 @@ function __init__()
         mkpath(joinpath(PKGDIR, "assets/proposal_tables"))
     end
     tmp.InterpolationSettings.tables_path = joinpath(PKGDIR, "assets/proposal_tables")
-    copy!(pp, tmp)
+    PythonCall.pycopy!(pp, tmp)
 end
 
-function proposal_secondary_to_particle(loss)
-    energy = loss.energy / 1E3
-    pos = SA[loss.position.x/100, loss.position.y/100, loss.position.z/100]
-    dir = SA[loss.direction.x, loss.direction.y, loss.direction.z]
-    time = loss.time * 1E9
 
-    pname = pp.particle.Interaction_Type(loss.type).name
+function proposal_secondary_to_particle(loss)
+    energy = pyconvert(Float64, loss.energy) / 1E3
+    pos = SA[
+        pyconvert(Float64, loss.position.x/100),
+        pyconvert(Float64, loss.position.y/100),
+        pyconvert(Float64, loss.position.z/100)
+        ]
+    dir = SA[
+        pyconvert(Float64, loss.direction.x),
+        pyconvert(Float64, loss.direction.y),
+        pyconvert(Float64, loss.direction.z)]
+    time = pyconvert(Float64, loss.time) * 1E9
+
+    pname = pyconvert(String, pp.particle.Interaction_Type(loss.type).name)
 
     if pname == "photonuclear"
         ptype = PHadronShower
@@ -43,10 +50,17 @@ function proposal_secondary_to_particle(loss)
 end
 
 function proposal_continuous_to_particle(loss)
-    energy = loss.energy / 1E3
-    pos = SA[loss.start_position.x/100, loss.start_position.y/100, loss.start_position.z/100]
-    dir = SA[loss.direction_initial.x, loss.direction_initial.y, loss.direction_initial.z]
-    time = loss.time_initial * 1E9
+    energy = pyconvert(Float64, loss.energy) / 1E3
+    pos = SA[
+        pyconvert(Float64, loss.start_position.x/100),
+        pyconvert(Float64, loss.start_position.y/100),
+        pyconvert(Float64, loss.start_position.z/100)
+        ]
+    dir = SA[
+        pyconvert(Float64, loss.direction_initial.x),
+        pyconvert(Float64, loss.direction_initial.y),
+        pyconvert(Float64, loss.direction_initial.z)]
+    time = pyconvert(Float64, loss.time_initial) * 1E9
 
     ptype = PEPlus
 
@@ -83,21 +97,21 @@ function propagate_muon(particle; propagator=nothing, length=0)
     initial_state.direction = pp.Cartesian3D(direction[1], direction[2], direction[3])
     initial_state.time = time / 1E9
     secondaries = propagator.propagate(initial_state, max_distance=length * 100)
-    stochastic_losses = secondaries.stochastic_losses()
+    stochastic_losses = pyconvert(Vector, secondaries.stochastic_losses())
     stochastic_losses = proposal_secondary_to_particle.(stochastic_losses)
 
-    continuous_losses = proposal_continuous_to_particle.(secondaries.continuous_losses())
+    continuous_losses = proposal_continuous_to_particle.(pyconvert(Vector, secondaries.continuous_losses()))
 
     T = eltype(position)
 
     final_state = secondaries.final_state()
-    length = T(final_state.propagated_distance / 100)
+    length = pyconvert(T, final_state.propagated_distance / 100)
 
     final_state = Particle(
         position .+ length .* direction,
         direction,
-        T(final_state.time * 1E9),
-        T(final_state.energy / 1E3),
+        pyconvert(T, final_state.time * 1E9),
+        pyconvert(T, final_state.energy / 1E3),
         length,
         particle.type)
 

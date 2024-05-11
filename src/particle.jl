@@ -1,5 +1,6 @@
 using StaticArrays
-
+using PhysicalConstants.CODATA2018: c_0
+using Unitful
 export ParticleType, PEPlus, PEMinus, PGamma, PMuMinus, PMuPlus
 export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower
 export PLightSabre
@@ -8,7 +9,9 @@ export Track, Cascade
 export Particle, ParticleShape
 export ptype_for_code
 export is_neutrino
-export shift_particle
+export shift_particle!
+
+c_vac = ustrip(u"m/ns", c_0)
 
 
 abstract type ParticleType end
@@ -117,8 +120,11 @@ mutable struct Particle{T,PType<:ParticleType}
     type::Type{PType}
 end
 
-Particle(position::AbstractArray, direction::AbstractArray, time, energy, length, type) = Particle(SVector{3}(position), SVector{3}(direction), time, energy, length, type)
-
+function Particle(position::AbstractArray, direction::AbstractArray, time, energy, length, type)
+    
+    common_type = promote_type(eltype(position), eltype(direction), typeof(time), typeof(energy), typeof(length))
+    return Particle(SVector{3, common_type}(position), SVector{3, common_type}(direction), common_type(time), common_type(energy), common_type(length), type)
+end
 
 """
     shift_particle(particle::Particle, dist_along)
@@ -133,8 +139,10 @@ Shifts the given particle along its direction by the specified distance.
 A new `Particle` object with the shifted position.
 
 """
-function shift_particle(particle::Particle, dist_along) 
-    return Particle(particle.position + dist_along .* particle.direction, particle.direction, particle.time, particle.energy, particle.length, particle.type)
+function shift_particle!(particle::Particle, dist_along)
+    particle.position = particle.position + dist_along .* particle.direction
+    particle.time = particle.time + dist_along / c_vac
+    return particle
 end
 
 """

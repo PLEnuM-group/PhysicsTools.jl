@@ -4,7 +4,7 @@ authors = ["Christian Haack"]
 version = "0.5.5"
 
 [deps]
-Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
@@ -13,11 +13,13 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 PhysicalConstants = "5ad8b20f-a522-5ce9-bfc9-ddf1d5bda6ab"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Polynomials = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
-PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PreferenceTools = "ba661fbb-e901-4445-b070-854aec6bfbc5"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 DataStructures = "0.18"

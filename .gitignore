@@ -3,3 +3,4 @@
 *.jl.mem
 /docs/build/
 /assets/proposal_tables/*
+.CondaPkg

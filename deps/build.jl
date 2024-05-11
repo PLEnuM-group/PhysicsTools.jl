@@ -1,6 +1,7 @@
-import Pkg
-using Conda
-ENV["PYTHON"] = ""
-Pkg.build("PyCall")
-Conda.pip_interop(true)
-Conda.pip("install", "proposal")
+#import Pkg
+#using CondaPkg
+#ENV["PYTHON"] = ""
+#Pkg.build("PythonCall")
+#Conda.pip_interop(true)
+#Conda.pip("install", "proposal")
+#add_pip("proposal"; version="")
