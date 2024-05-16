@@ -1,4 +1,0 @@
-[CondaPkg]
-backend = "System"
-offline = false
-verbosity = 1
