@@ -121,10 +121,17 @@ mutable struct Particle{T,PType<:ParticleType}
 end
 
 function Particle(position::AbstractArray, direction::AbstractArray, time, energy, length, type)
-    
     common_type = promote_type(eltype(position), eltype(direction), typeof(time), typeof(energy), typeof(length))
     return Particle(SVector{3, common_type}(position), SVector{3, common_type}(direction), common_type(time), common_type(energy), common_type(length), type)
 end
+
+function Particle(pos_x, pos_y, pos_z, dir_x, dir_y, dir_z, time, energy, length, type)
+    common_type = promote_type(typeof(pos_x), typeof(pos_y), typeof(pos_z), typeof(dir_x), typeof(dir_y), typeof(dir_z), typeof(time), typeof(energy), typeof(length))
+    ptype = ptype_for_code(type)
+    return Particle(SVector{3, common_type}(pos_x, pos_y, pos_z), SVector{3, common_type}(dir_x, dir_y, dir_z), common_type(time), common_type(energy), common_type(length), ptype)
+end
+
+
 
 """
     shift_particle(particle::Particle, dist_along)
