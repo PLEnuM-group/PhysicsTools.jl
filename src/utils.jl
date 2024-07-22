@@ -22,6 +22,7 @@ export gumbel_width_from_fwhm
 export cart_to_cyl, cart_to_cyl
 export frank_tamm, frank_tamm_norm
 export percentile_of_score
+export rand_beta
 
 const GL10 = gausslegendre(10)
 
@@ -360,7 +361,7 @@ end
 
 Calc rotation matrix which rotates e_z to `a`. Applies resulting matrix to `operand`.
 """
-@inline function rot_from_ez_fast(a::SVector{3,T}, operand::SVector{3,T}) where {T<:Real}
+@inline function rot_from_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
 
     if a[3] == T(1)
         return operand
@@ -399,8 +400,34 @@ function sample_cherenkov_track_direction(T::Type)
     phi = T(2 * π) * rand(T)
 
     return sph_to_cart(acos(costheta), phi)
-
 end
+
+function rand_stdexp(T::Type{U}=Float64) where {U<:Real}
+    return -log(rand(T))
+end
+
+
+
+function rand_gamma_ltone(shape, T::Type{K}=Float64) where {K<:Real}
+    while true
+        U = rand(T)
+        V = rand_stdexp(T)
+        if (U <= T(1.0) - shape)
+            X = U ^ (T(1) / shape)
+            if (X <= V) 
+                return X
+            end
+        else 
+            Y = -log((T(1) - U) / shape)
+            X = (T(1) - shape + shape * Y)^ (T(1) / shape)
+            if (X <= (V + Y)) 
+                return X
+            end  
+        end
+    end
+end
+
+
 
 """
     rand_gamma(shape, scale)
@@ -408,6 +435,10 @@ end
 Sample gamma variates when shape > 1
 """
 function rand_gamma(shape::Real, scale::Real, T::Type{U}=Float64) where {U<:Real}
+
+    if shape < 1
+        return rand_gamma_ltone(shape, T) * scale
+    end
 
     d = T(shape - 1 / 3)
     c::T = one(T) / sqrt(9 * d)
@@ -435,6 +466,13 @@ function rand_gamma(shape::Real, scale::Real, T::Type{U}=Float64) where {U<:Real
         end
     end
 end
+
+function rand_beta(a::T, b::T)
+    x = rand_gamma(a, T(1), T)
+    y = rand_gamma(b, T(1), T)
+    return x / (x+y)
+end
+
 
 """
     fwhm(d::UnivariateDistribution, xmode::Real; xlims=(-20, 20))
