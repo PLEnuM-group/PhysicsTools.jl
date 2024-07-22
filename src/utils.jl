@@ -467,7 +467,7 @@ function rand_gamma(shape::Real, scale::Real, T::Type{U}=Float64) where {U<:Real
     end
 end
 
-function rand_beta(a::T, b::T)
+function rand_beta(a::T, b::T) where {T<:Real}
     x = rand_gamma(a, T(1), T)
     y = rand_gamma(b, T(1), T)
     return x / (x+y)
