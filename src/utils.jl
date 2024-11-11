@@ -233,6 +233,8 @@ function cart_to_sph(x::Real, y::Real, z::Real)
     return SA{T}[theta, phi]
 end
 
+
+
 cart_to_sph(x::AbstractVector) = cart_to_sph(x[1], x[2], x[3])
 
 """
@@ -244,9 +246,9 @@ function cart_to_cyl(x::Real, y::Real, z::Real)
     T = promote_type(typeof(x), typeof(y), typeof(z))
 
     rho = sqrt(x^2 + y^2)
-    phi = acos(x / rho)
-    phi = y >= 0 ? phi : 2 * π - phi
+    phi = atan(y, x)
     return SA{T}[rho, phi, z]
+
 end
 
 cart_to_cyl(x::AbstractArray) = cart_to_cyl(x[1], x[2], x[3])
@@ -337,7 +339,7 @@ end
 
 Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `operand`.
 """
-@inline function rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{T}) where {T<:Real}
+@inline function rot_to_ez_fast(a::AbstractVector{T}, operand::AbstractVector{U}) where {T<:Real, U<:Real}
 
     if a[3] == T(1)
         return operand
@@ -350,10 +352,12 @@ Calc rotation matrix which rotates `a` to e_z. Applies resulting matrix to `oper
     fact = (1 - a[3]) / (a2sq + a1sq)
     a1a2 = a[1] * a[2]
 
-    x = fma(-a1sq, fact, 1) * operand[1] - a1a2 * fact * operand[2] - a[1] * operand[3]
-    y = -a1a2 * fact * operand[1] + fma(-a2sq, fact, 1) * operand[2] - a[2] * operand[3]
+    #x = fma(-a1sq, fact, 1) * operand[1] - a1a2 * fact * operand[2] - a[1] * operand[3]
+    x = (-a1sq * fact + 1) * operand[1] - a1a2 * fact * operand[2] - a[1] * operand[3]
+    #y = -a1a2 * fact * operand[1] + fma(-a2sq, fact, 1) * operand[2] - a[2] * operand[3]
+    y = -a1a2 * fact * operand[1] + (-a2sq * fact + 1) * operand[2] - a[2] * operand[3]
     z = a[1] * operand[1] + a[2] * operand[2] + a[3] * operand[3]
-    return SA[x, y, z]
+    return SA{U}[x, y, z]
 end
 
 """
