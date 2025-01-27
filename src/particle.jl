@@ -2,7 +2,7 @@ using StaticArrays
 using PhysicalConstants.CODATA2018: c_0
 using Unitful
 export ParticleType, PEPlus, PEMinus, PGamma, PMuMinus, PMuPlus
-export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower
+export PNuE, PNuMu, PNuTau, PNuEBar, PNuMuBar, PNuTauBar, PHadronShower, PUnknown
 export PLightSabre
 export pdf_code, particle_shape
 export Track, Cascade
@@ -37,8 +37,9 @@ const ALL_PARTICLES = [PEPlus, PEMinus, PGamma, PMuPlus, PMuMinus, PNuE, PNuMu, 
 abstract type ParticleShape end
 
 "Subtype of ParticleShape, used to classify signatures in detector. PEPlus, PEMinus, PGamma and PHadronShower have the shape Cascade; while PMuMinus, PMuPlus and PLightSabre have the shape Track. particle_shape() can be used to return shape of particle signature."
-struct Track <: ParticleShape end,
+struct Track <: ParticleShape end
 struct Cascade <: ParticleShape end
+struct NoShape <: ParticleShape end
 
 
 """
@@ -88,6 +89,7 @@ particle_shape(::Type{<:PMuMinus}) = Track()
 particle_shape(::Type{<:PMuPlus}) = Track()
 particle_shape(::Type{<:PHadronShower}) = Cascade()
 particle_shape(::Type{<:PLightSabre}) = Track()
+particle_shape(::Type) = NoShape()
 
 is_neutrino(::Type) = false
 is_neutrino(::Type{PNuE}) = true
